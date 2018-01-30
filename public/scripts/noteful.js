@@ -54,8 +54,10 @@ const noteful = (function () {
       event.preventDefault();
 
       const searchTerm = $('.js-note-search-entry').val();
-      store.currentSearchTerm =  searchTerm ? { searchTerm } : {};
-      
+      store.currentSearchTerm = searchTerm ? {
+        searchTerm
+      } : {};
+
       api.search(store.currentSearchTerm, response => {
         store.notes = response;
         render();
@@ -63,9 +65,56 @@ const noteful = (function () {
     });
   }
 
+  // event listener for handling submissions
+  function handleNoteFormSubmit() {
+    $('.js-note-edit-form').on('submit', function (event) {
+      event.preventDefault();
+
+      const editForm = $(event.currentTarget);
+
+      const noteObj = {
+        title: editForm.find('.js-note-title-entry').val(),
+        content: editForm.find('.js-note-content-entry').val()
+      };
+
+      noteObj.id = store.currentNote.id;
+      // console.log(noteObj);
+      
+
+      api.update(noteObj.id, noteObj, updateResponse => {
+        // console.log(store);
+        // title in store to be equal title in database
+        // store.currentNote; noteObj.title
+        console.log(store.notes[0]);
+        
+        // console.log(noteObj.id);
+        // console.log(store.currentNote.title);
+        // console.log(noteObj.title);
+        
+        // console.log(noteObj.id);
+        
+        const test = store.notes.find((item) => item.id === noteObj.id); // return entire object of an id ::: search (noteObj.id)
+        console.log(test.title);
+        
+        // objID.title = noteObj.title
+        // updates 
+
+        // updates title
+        test.title = noteObj.title;
+
+        // updates content
+        store.currentNote = updateResponse;
+
+        render();
+      });
+      // location.reload();
+    });
+  }
+
   function bindEventListeners() {
     handleNoteItemClick();
     handleNoteSearchSubmit();
+    handleNoteFormSubmit();
   }
 
   // This object contains the only exposed methods from this module:
